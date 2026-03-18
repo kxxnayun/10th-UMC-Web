@@ -17,7 +17,7 @@ const TodoForm = ({ onAdd }: TodoFormProps) => {
     <div className="flex justify-evenly gap-3 px-4">
       <input
         className="flex-1 bg-white shadow-md rounded-md h-10 text-center"
-        placeholder="할 일을 입력하세요"
+        placeholder="할 일을 입력"
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
