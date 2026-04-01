@@ -1,7 +1,9 @@
+import MoviePage from "./MoviePage";
+
 export default function NowPlayingPage() {
   return (
     <>
-      <div></div>
+      <MoviePage category="now_playing" />
     </>
   );
 }
