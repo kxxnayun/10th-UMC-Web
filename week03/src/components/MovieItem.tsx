@@ -31,7 +31,7 @@ export default function MovieItem({ movie }: MovieItemProps) {
         {isHover && (
           <div className="absolute inset-0 backdrop-blur-md flex flex-col justify-center items-center text-white p-4">
             <div className="text-lg font-bold">{movie.title}</div>
-            <div className="line-clamp-5">{movie.overview}</div>
+            <div className="line-clamp-5 text-sm">{movie.overview}</div>
           </div>
         )}
       </div>

@@ -24,6 +24,9 @@ const MoviesPage = () => {
     fetchMovies();
   }, []);
 
+  console.log("render start");
+  console.log(movies);
+
   return (
     <div className="p-10">
       <div className="grid gap-4 grid-cols-6">
