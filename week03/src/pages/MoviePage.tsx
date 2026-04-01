@@ -48,8 +48,6 @@ const MoviePage = ({ category }: MoviePageProps) => {
     return <NotFound />;
   }
 
-  console.log();
-
   return (
     <div>
       <div className="p-10 flex justify-center">
