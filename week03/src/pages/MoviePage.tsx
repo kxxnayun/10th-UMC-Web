@@ -52,8 +52,8 @@ const MoviePage = ({ category }: MoviePageProps) => {
 
   return (
     <div>
-      <div className="p-10">
-        <div className="grid gap-4 grid-cols-6">
+      <div className="p-10 flex justify-center">
+        <div className="grid gap-10 grid-cols-5">
           {movies.map((movie) => (
             <MovieItem key={movie.id} movie={movie} />
           ))}
