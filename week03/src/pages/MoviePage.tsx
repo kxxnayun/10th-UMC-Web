@@ -33,6 +33,8 @@ const MoviesPage = () => {
     return <LoadingSpinner />;
   }
 
+  console.log();
+
   return (
     <div className="p-10">
       <div className="grid gap-4 grid-cols-6">
