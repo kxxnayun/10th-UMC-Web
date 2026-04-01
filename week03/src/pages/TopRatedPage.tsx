@@ -1,7 +1,9 @@
+import MoviePage from "./MoviePage";
+
 export default function TopRatedPage() {
   return (
     <>
-      <div></div>
+      <MoviePage category="top_rated" />
     </>
   );
 }

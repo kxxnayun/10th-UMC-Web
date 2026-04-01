@@ -1,7 +1,9 @@
+import MoviePage from "./MoviePage";
+
 export default function UpcomingPage() {
   return (
     <>
-      <div></div>
+      <MoviePage category="upcoming" />;
     </>
   );
 }

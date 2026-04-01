@@ -1,7 +1,9 @@
+import MoviePage from "./MoviePage";
+
 export default function PopularPage() {
   return (
     <>
-      <div></div>
+      <MoviePage category="popular" />
     </>
   );
 }
