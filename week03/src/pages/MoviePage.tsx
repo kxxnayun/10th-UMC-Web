@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Movie, MovieResponse } from "../types/movie";
+import MovieItem from "../components/MovieItem";
 
 const MoviesPage = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
+
+  const TMBD_TOKEN = import.meta.env.VITE_TMDB_KEY;
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -11,7 +14,7 @@ const MoviesPage = () => {
         "https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1",
         {
           headers: {
-            Authorization: `Bearer 토큰`,
+            Authorization: `Bearer ${TMBD_TOKEN}`,
           },
         },
       );
@@ -22,14 +25,13 @@ const MoviesPage = () => {
   }, []);
 
   return (
-    <ul>
-      {movies.map((movie) => (
-        <li key={movie.id}>
-          <h2>{movie.title}</h2>
-          <p>{movie.release_date}</p>
-        </li>
-      ))}
-    </ul>
+    <div className="p-10">
+      <div className="grid gap-4 grid-cols-6">
+        {movies.map((movie) => (
+          <MovieItem key={movie.id} movie={movie} />
+        ))}
+      </div>
+    </div>
   );
 };
 
