@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import googleIcon from "../assets/googleIcon.svg";
-import { loginSchema, type LoginFormData } from "../schema/authSchema";
+import { signupSchema, type SignupFormData } from "../schema/authSchema";
 import type { FieldError, Touched } from "../types/form";
 import type { User } from "../types/auth";
 import {
@@ -11,19 +11,20 @@ import {
 } from "../utils/validate";
 import useLocalStorage from "../hooks/useLocalStorage";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
-  const [users] = useLocalStorage<User[]>("users", []);
-  const [formData, setFormData] = useState<LoginFormData>({
+  const [users, setUsers] = useLocalStorage<User[]>("users", []);
+  const [formData, setFormData] = useState<SignupFormData>({
     email: "",
     password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState<FieldError<LoginFormData>>({});
-  const [touched, setTouched] = useState<Touched<LoginFormData>>({});
+  const [error, setError] = useState<FieldError<SignupFormData>>({});
+  const [touched, setTouched] = useState<Touched<SignupFormData>>({});
   const [submitError, setSubmitError] = useState("");
 
   const handleChange =
-    (field: keyof LoginFormData) =>
+    (field: keyof SignupFormData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       const nextFormData = {
@@ -37,12 +38,26 @@ export default function LoginPage() {
       if (touched[field]) {
         setError((prev) => ({
           ...prev,
-          [field]: getSingleFieldError(loginSchema, nextFormData, field),
+          [field]: getSingleFieldError(signupSchema, nextFormData, field),
+        }));
+      }
+
+      if (
+        (field === "password" || field === "confirmPassword") &&
+        touched.confirmPassword
+      ) {
+        setError((prev) => ({
+          ...prev,
+          confirmPassword: getSingleFieldError(
+            signupSchema,
+            nextFormData,
+            "confirmPassword",
+          ),
         }));
       }
     };
 
-  const handleBlur = (field: keyof LoginFormData) => () => {
+  const handleBlur = (field: keyof SignupFormData) => () => {
     setTouched((prev) => ({
       ...prev,
       [field]: true,
@@ -50,55 +65,56 @@ export default function LoginPage() {
 
     setError((prev) => ({
       ...prev,
-      [field]: getSingleFieldError(loginSchema, formData, field),
+      [field]: getSingleFieldError(signupSchema, formData, field),
     }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = validateForm(loginSchema, formData);
+    const result = validateForm(signupSchema, formData);
 
     if (!result.success) {
-      setError(getFieldErrors(loginSchema, formData));
+      setError(getFieldErrors(signupSchema, formData));
       setTouched({
         email: true,
         password: true,
+        confirmPassword: true,
       });
       return;
     }
 
-    const matchedUser = users.find(
-      (user) =>
-        user.email === result.data.email &&
-        user.password === result.data.password,
-    );
+    const isExist = users.some((user) => user.email === result.data.email);
 
-    if (!matchedUser) {
-      setSubmitError("이메일 또는 비밀번호가 올바르지 않습니다.");
+    if (isExist) {
+      setSubmitError("이미 가입된 이메일입니다.");
       return;
     }
 
-    localStorage.setItem("isLoggedIn", JSON.stringify(true));
-    localStorage.setItem("currentUser", JSON.stringify(matchedUser));
+    const newUser: User = {
+      email: result.data.email,
+      password: result.data.password,
+    };
+
+    setUsers([...users, newUser]);
     setError({});
     setSubmitError("");
-    navigate("/");
+    navigate("/login");
   };
 
-  const isValid = validateForm(loginSchema, formData).success;
+  const isValid = validateForm(signupSchema, formData).success;
 
   return (
     <div className="min-h-screen flex justify-center items-center px-4">
       <div className="w-full max-w-[400px] p-6 flex flex-col gap-3 border rounded-2xl shadow justify-center items-center">
-        <div className="text-xl font-bold text-center mb-2">로그인</div>
+        <div className="text-xl font-bold text-center mb-2">회원가입</div>
 
         <button
           type="button"
           className="w-full flex items-center justify-center gap-2 border border-gray-400 py-2 rounded mb-4 cursor-pointer"
         >
           <img src={googleIcon} alt="Google" className="w-5 h-5" />
-          <p>구글 로그인</p>
+          <p>구글로 회원가입</p>
         </button>
 
         <div className="w-full flex items-center my-2">
@@ -144,6 +160,26 @@ export default function LoginPage() {
             )}
           </div>
 
+          <div>
+            <input
+              type="password"
+              placeholder="비밀번호 확인"
+              value={formData.confirmPassword}
+              onChange={handleChange("confirmPassword")}
+              onBlur={handleBlur("confirmPassword")}
+              className={`w-full border p-2 rounded ${
+                touched.confirmPassword && error.confirmPassword
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+            />
+            {touched.confirmPassword && error.confirmPassword && (
+              <p className="mt-1 text-sm text-red-500">
+                {error.confirmPassword}
+              </p>
+            )}
+          </div>
+
           {submitError && <p className="text-sm text-red-500">{submitError}</p>}
 
           <button
@@ -153,7 +189,7 @@ export default function LoginPage() {
               isValid ? "bg-blue-600" : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            로그인
+            회원가입
           </button>
         </form>
       </div>
