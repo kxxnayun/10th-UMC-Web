@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <div className="sticky bg-white fixed top-0 left-0 w-full h-[60px] p-5 shadow-md z-50">
+    <div className="relative sticky bg-white fixed top-0 left-0 w-full h-[60px] p-5 shadow-md z-50">
       <div className="flex flex-row justify-center w-full gap-5 items-center">
         <NavLink
           to="/"
@@ -47,6 +47,16 @@ export default function Navbar() {
           }
         >
           개봉 예정
+        </NavLink>
+      </div>
+      <div className="absolute right-5 top-1/2 -translate-y-1/2">
+        <NavLink
+          to="/login"
+          className={({ isActive }) =>
+            `${isActive ? "text-blue-600 font-bold" : "text-black"}`
+          }
+        >
+          로그인
         </NavLink>
       </div>
     </div>
