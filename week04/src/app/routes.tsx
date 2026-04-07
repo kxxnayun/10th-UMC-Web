@@ -7,6 +7,7 @@ import TopRatedPage from "../pages/TopRatedPage";
 import NowPlayingPage from "../pages/NowPlayingPage";
 import MoviePage from "../pages/MoviePage";
 import LoginPage from "../pages/LoginPage";
+import SignupPage from "../pages/SignupPage";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "now-playing", element: <NowPlayingPage /> },
       { path: "movie/:movieId", element: <MovieDetailPage /> },
       { path: "login", element: <LoginPage /> },
+      { path: "signup", element: <SignupPage /> },
     ],
   },
 ]);
