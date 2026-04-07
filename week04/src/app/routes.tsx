@@ -6,18 +6,20 @@ import MovieDetailPage from "../pages/MovieDetailPage";
 import TopRatedPage from "../pages/TopRatedPage";
 import NowPlayingPage from "../pages/NowPlayingPage";
 import MoviePage from "../pages/MoviePage";
+import LoginPage from "../pages/LoginPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, element: <MoviePage /> },
+      { index: true, element: <MoviePage category="popular" /> },
       { path: "popular", element: <PopularPage /> },
       { path: "upcoming", element: <UpcomingPage /> },
       { path: "top-rated", element: <TopRatedPage /> },
       { path: "now-playing", element: <NowPlayingPage /> },
       { path: "movie/:movieId", element: <MovieDetailPage /> },
+      { path: "login", element: <LoginPage /> },
     ],
   },
 ]);
