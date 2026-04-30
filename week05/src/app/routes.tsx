@@ -10,6 +10,7 @@ import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import MyPage from "../pages/MyPage";
+import GoogleLoginRedirectPage from "../pages/GoogleLoginRedirectPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: "movie/:movieId", element: <MovieDetailPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "signup", element: <SignupPage /> },
+      { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> },
     ],
   },
   {
