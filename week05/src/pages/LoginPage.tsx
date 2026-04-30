@@ -34,6 +34,11 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href =
+      import.meta.env.VITE_API_BASE_URL + "/v1/auth/google/login";
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -43,6 +48,7 @@ export default function LoginPage() {
 
       <button
         type="button"
+        onClick={handleGoogleLogin}
         className="w-full flex items-center justify-center gap-2 border border-gray-400 py-2 rounded mb-4 cursor-pointer"
       >
         <img src={googleIcon} alt="Google" className="w-5 h-5" />
