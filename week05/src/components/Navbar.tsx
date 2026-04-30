@@ -1,21 +1,13 @@
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { accessToken, logout } = useAuth();
+  const isLoggedIn = !!accessToken;
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("isLoggedIn") || "false");
-    setIsLoggedIn(stored);
-  }, [location]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("currentUser");
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 
