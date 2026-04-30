@@ -8,10 +8,12 @@ import {
   setStorageItem,
 } from "../hooks/useLocalStorage";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
+import type { ResponseRefreshDto } from "../types/auth";
 
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
+
 let refreshPromise: Promise<string> | null = null;
 
 export const axiosInstance = axios.create({
@@ -32,60 +34,56 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+const requestNewAccessToken = async (): Promise<string> => {
+  const refreshToken = getStorageItem<string>(LOCAL_STORAGE_KEY.refreshToken);
+
+  if (!refreshToken) {
+    throw new Error("No refresh token");
+  }
+
+  const { data } = await axios.post<ResponseRefreshDto>(
+    `${import.meta.env.VITE_API_BASE_URL}/v1/auth/refresh`,
+    { refresh: refreshToken },
+  );
+
+  setStorageItem(LOCAL_STORAGE_KEY.accessToken, data.data.accessToken);
+  setStorageItem(LOCAL_STORAGE_KEY.refreshToken, data.data.refreshToken);
+
+  return data.data.accessToken;
+};
+
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse<any, any>) => response,
+  (response: AxiosResponse) => response,
   async (error) => {
-    const originalRequest: CustomInternalAxiosRequestConfig = error.config;
+    const originalRequest: CustomInternalAxiosRequestConfig | undefined =
+      error.config;
 
     if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
+      !originalRequest ||
+      error.response?.status !== 401 ||
+      originalRequest._retry
     ) {
-      if (originalRequest.url === "/v1/auth/refresh") {
-        removeStorageItem(LOCAL_STORAGE_KEY.accessToken);
-        removeStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
+      return Promise.reject(error);
+    }
 
-      originalRequest._retry = true;
+    originalRequest._retry = true;
 
-      if (!refreshPromise) {
-        refreshPromise = (async () => {
-          const refreshToken = getStorageItem<string>(
-            LOCAL_STORAGE_KEY.refreshToken,
-          );
-
-          const { data } = await axiosInstance.post("/v1/auth/refresh", {
-            refresh: refreshToken,
-          });
-
-          setStorageItem(LOCAL_STORAGE_KEY.accessToken, data.data.accessToken);
-          setStorageItem(
-            LOCAL_STORAGE_KEY.refreshToken,
-            data.data.refreshToken,
-          );
-
-          return data.data.accessToken;
-        })()
-          .catch(() => {
-            removeStorageItem(LOCAL_STORAGE_KEY.accessToken);
-            removeStorageItem(LOCAL_STORAGE_KEY.refreshToken);
-            return "";
-          })
-          .finally(() => {
-            refreshPromise = null;
-          });
-      }
-
-      return refreshPromise.then((newAccessToken: string) => {
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
-        return axiosInstance.request(originalRequest);
+    if (!refreshPromise) {
+      refreshPromise = requestNewAccessToken().finally(() => {
+        refreshPromise = null;
       });
     }
 
-    return Promise.reject(error);
+    try {
+      const newAccessToken = await refreshPromise;
+      originalRequest.headers = originalRequest.headers ?? {};
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return axiosInstance.request(originalRequest);
+    } catch (refreshError) {
+      removeStorageItem(LOCAL_STORAGE_KEY.accessToken);
+      removeStorageItem(LOCAL_STORAGE_KEY.refreshToken);
+      window.location.href = "/login";
+      return Promise.reject(refreshError);
+    }
   },
 );
